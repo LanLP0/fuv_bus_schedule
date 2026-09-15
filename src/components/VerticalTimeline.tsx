@@ -1,9 +1,9 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import type { BusTrip } from '../types/schedule';
-import { TimelineItem } from './TimelineItem';
-import { TimelinePointer } from './TimelinePointer';
+import React, { useRef, useState, useEffect, useCallback } from "react";
+import type { BusTrip } from "../types/schedule";
+import { TimelineItem } from "./TimelineItem";
+import { TimelinePointer } from "./TimelinePointer";
 
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin, Navigation } from "lucide-react";
 
 interface VerticalTimelineProps {
   trips: BusTrip[];
@@ -25,11 +25,13 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({
 
   const [pointerTop, setPointerTop] = useState<number>(0);
   const [pointerVisible, setPointerVisible] = useState<boolean>(true);
-  const [manualSideOverride, setManualSideOverride] = useState<'left' | 'right' | null>(null);
+  const [manualSideOverride, setManualSideOverride] = useState<
+    "left" | "right" | null
+  >(null);
 
   // Dynamically flip pointer to the empty column to avoid clipping cards
-  const getDynamicPointerSide = (): 'left' | 'right' => {
-    if (trips.length === 0) return 'right';
+  const getDynamicPointerSide = (): "left" | "right" => {
+    if (trips.length === 0) return "right";
 
     const currentSeconds =
       currentTime.getHours() * 3600 +
@@ -49,7 +51,7 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({
 
     // If closest trip card is on the Left (Noble Crystal), position pointer on the Right.
     // If closest trip card is on the Right (Crescent Campus), position pointer on the Left.
-    return closestTrip.origin === 'Noble Crystal' ? 'right' : 'left';
+    return closestTrip.origin === "Noble Crystal" ? "right" : "left";
   };
 
   const dynamicSide = getDynamicPointerSide();
@@ -118,25 +120,25 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({
       updatePointerPosition();
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [updatePointerPosition]);
 
-  const currentDayMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
+  const currentDayMinutes =
+    currentTime.getHours() * 60 + currentTime.getMinutes();
 
   return (
     <section className="glass-panel timeline-section">
       <div className="timeline-header">
         <div className="timeline-title-group">
-          <h2>Daily Departure Timeline</h2>
-          <p>
-            Chronological departure schedule. Click any timeslot to view boarding and drop-off
-            details.
-          </p>
+          <h2>Daily Departure Schedule</h2>
+          <p>Click any timeslot to view boarding and drop-off details.</p>
         </div>
 
         {hasNoServiceToday && (
-          <div style={{ fontSize: '0.85rem', color: '#f87171', fontWeight: 600 }}>
+          <div
+            style={{ fontSize: "0.85rem", color: "#f87171", fontWeight: 600 }}
+          >
             * Showing standard weekday timetable for reference
           </div>
         )}
@@ -147,13 +149,13 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({
         <div className="legend-col left">
           <MapPin size={16} />
           <span>From Noble Crystal</span>
-          <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>(Block C)</span>
+          <span style={{ fontSize: "0.75rem", opacity: 0.7 }}>(Block C)</span>
         </div>
         <div className="legend-divider">VS</div>
         <div className="legend-col right">
           <Navigation size={16} />
           <span>From Crescent Campus</span>
-          <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>(Canopy)</span>
+          <span style={{ fontSize: "0.75rem", opacity: 0.7 }}>(Canopy)</span>
         </div>
       </div>
 
@@ -170,7 +172,7 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({
           side={effectiveSide}
           onToggleSide={() =>
             setManualSideOverride((prev) =>
-              (prev ?? dynamicSide) === 'left' ? 'right' : 'left'
+              (prev ?? dynamicSide) === "left" ? "right" : "left",
             )
           }
         />
@@ -178,7 +180,8 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({
         {/* Chronological Trip Rows */}
         {trips.map((trip, idx) => {
           const isNext = trip.id === nextTripId;
-          const isPast = !hasNoServiceToday && trip.departureMinutes <= currentDayMinutes;
+          const isPast =
+            !hasNoServiceToday && trip.departureMinutes <= currentDayMinutes;
 
           return (
             <TimelineItem
