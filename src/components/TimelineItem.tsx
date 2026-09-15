@@ -1,7 +1,7 @@
-import React from 'react';
-import { MapPin, ChevronRight } from 'lucide-react';
-import type { BusTrip } from '../types/schedule';
-import { getTripRemainingTime } from '../utils/timeUtils';
+import React from "react";
+import { MapPin, ChevronRight } from "lucide-react";
+import type { BusTrip } from "../types/schedule";
+import { getTripRemainingTime } from "../utils/timeUtils";
 
 interface TimelineItemProps {
   trip: BusTrip;
@@ -22,19 +22,23 @@ export const TimelineItem: React.FC<TimelineItemProps> = ({
   onSelect,
   rowRef,
 }) => {
-  const isNoble = trip.origin === 'Noble Crystal';
-  const remaining = getTripRemainingTime(trip.departureMinutes, currentTime, hasNoServiceToday);
+  const isNoble = trip.origin === "Noble Crystal";
+  const remaining = getTripRemainingTime(
+    trip.departureMinutes,
+    currentTime,
+    hasNoServiceToday,
+  );
 
   const cardElement = (
     <div
-      className={`departure-card ${isNoble ? 'noble' : 'crescent'} ${
-        isNext ? 'is-next' : ''
-      } ${isPast ? 'is-past' : ''}`}
+      className={`departure-card ${isNoble ? "noble" : "crescent"} ${
+        isNext ? "is-next" : ""
+      } ${isPast ? "is-past" : ""}`}
       onClick={() => onSelect(trip)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           onSelect(trip);
         }
@@ -47,28 +51,24 @@ export const TimelineItem: React.FC<TimelineItemProps> = ({
           {remaining.text && (
             <span
               className={`card-remaining-tag ${
-                isNext
-                  ? 'is-active'
-                  : isPast
-                  ? 'is-past'
-                  : 'is-upcoming'
+                isNext ? "is-active" : isPast ? "is-past" : "is-upcoming"
               }`}
             >
               {remaining.isBoarding
-                ? 'Now boarding'
+                ? "Now boarding"
                 : isPast
-                ? remaining.text
-                : `in ${remaining.text}`}
+                  ? remaining.text
+                  : `in ${remaining.text}`}
             </span>
           )}
         </div>
-        {isNext && <span className="next-pill">Next Bus</span>}
+        {/* {isNext && <span className="next-pill">Next</span>} */}
       </div>
 
       <div className="card-route">
         <span
           style={{
-            color: isNoble ? '#60a5fa' : '#34d399',
+            color: isNoble ? "#60a5fa" : "#34d399",
             fontWeight: 600,
           }}
         >
@@ -91,9 +91,9 @@ export const TimelineItem: React.FC<TimelineItemProps> = ({
   return (
     <div
       ref={rowRef}
-      className={`timeline-row ${isNoble ? 'noble' : 'crescent'} ${
-        isNext ? 'is-next' : ''
-      } ${isPast ? 'is-past' : ''}`}
+      className={`timeline-row ${isNoble ? "noble" : "crescent"} ${
+        isNext ? "is-next" : ""
+      } ${isPast ? "is-past" : ""}`}
       data-trip-id={trip.id}
     >
       {/* Left Column: Noble Crystal */}
