@@ -242,6 +242,14 @@ body {
   box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
 }
 
+.next-bus-header-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .next-bus-label {
   font-size: 0.825rem;
   font-weight: 600;
@@ -251,6 +259,35 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.pip-toggle-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.pip-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.pip-toggle-btn.active {
+  background: rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
 }
 
 .next-bus-countdown-text {
@@ -1098,4 +1135,165 @@ body {
   .pointer-badge {
     display: none; /* Keep cleaner view on mobile */
   }
+}
+
+/* Standalone Picture-in-Picture Widget styles */
+.pip-widget-container {
+  height: 100vh;
+  box-sizing: border-box;
+  background: #0a0e17;
+  color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  user-select: none;
+  border-left: 3px solid var(--accent-red);
+}
+
+.pip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.pip-brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pip-icon-box {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pip-brand-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #f3f4f6;
+}
+
+.pip-clock {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.775rem;
+  color: #9ca3af;
+}
+
+.pip-close-btn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.pip-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.pip-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.pip-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #fca5a5;
+  text-transform: uppercase;
+}
+
+.pip-countdown {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #ef4444;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 4px 0;
+  text-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
+
+.pip-countdown.is-boarding {
+  font-size: 1.7rem;
+  animation: pulse-dot 1.5s infinite ease-in-out;
+}
+
+.pip-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.pip-route-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.775rem;
+}
+
+.pip-origin-pill {
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.725rem;
+  font-weight: 600;
+}
+
+.pip-origin-pill.noble {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.pip-origin-pill.crescent {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.pip-departure-time {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.pip-pickup {
+  font-size: 0.675rem;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pip-no-bus {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin-top: 8px;
 }
