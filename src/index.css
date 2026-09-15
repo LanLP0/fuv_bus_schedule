@@ -123,7 +123,7 @@ body {
   margin-top: 2px;
   width: auto;
 
-  @media (max-width: 480px) {
+  @media (max-width: 640px) {
     & .date {
       display: none!important;
     }
