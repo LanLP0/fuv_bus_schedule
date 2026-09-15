@@ -1,4 +1,4 @@
-import type { BusTrip } from '../types/schedule';
+import type { BusTrip } from "../types/schedule";
 
 export function isWeekday(date: Date): boolean {
   const day = date.getDay();
@@ -7,7 +7,7 @@ export function isWeekday(date: Date): boolean {
 }
 
 export function formatTimeDigits(num: number): string {
-  return num.toString().padStart(2, '0');
+  return num.toString().padStart(2, "0");
 }
 
 export function formatClockTime(date: Date): string {
@@ -18,11 +18,11 @@ export function formatClockTime(date: Date): string {
 }
 
 export function formatReadableDate(date: Date): string {
-  return date.toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
   });
 }
 
@@ -38,7 +38,10 @@ export interface CountdownResult {
   isBoarding: boolean;
 }
 
-export function calculateCountdown(targetMinutes: number, currentDate: Date): CountdownResult {
+export function calculateCountdown(
+  targetMinutes: number,
+  currentDate: Date,
+): CountdownResult {
   const currentTotalSeconds =
     currentDate.getHours() * 3600 +
     currentDate.getMinutes() * 60 +
@@ -52,7 +55,7 @@ export function calculateCountdown(targetMinutes: number, currentDate: Date): Co
       hours: 0,
       minutes: 0,
       totalMinutes: 0,
-      formatted: 'Now boarding',
+      formatted: "Now boarding",
       isBoarding: true,
     };
   }
@@ -61,11 +64,11 @@ export function calculateCountdown(targetMinutes: number, currentDate: Date): Co
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
 
-  let formatted = '';
+  let formatted = "";
   let isBoarding = false;
 
-  if (hours === 0 && minutes === 0) {
-    formatted = 'Now boarding';
+  if (hours === 0 && minutes <= 5) {
+    formatted = "Now boarding";
     isBoarding = true;
   } else if (hours > 0) {
     formatted = minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
@@ -85,14 +88,14 @@ export function calculateCountdown(targetMinutes: number, currentDate: Date): Co
 export function getTripRemainingTime(
   tripDepartureMinutes: number,
   currentDate: Date,
-  hasNoServiceToday: boolean = false
+  hasNoServiceToday: boolean = false,
 ): {
   text: string;
   isPast: boolean;
   isBoarding: boolean;
 } {
   if (hasNoServiceToday) {
-    return { text: '', isPast: false, isBoarding: false };
+    return { text: "", isPast: false, isBoarding: false };
   }
 
   const currentTotalSeconds =
@@ -103,15 +106,15 @@ export function getTripRemainingTime(
   const diffSeconds = targetTotalSeconds - currentTotalSeconds;
 
   if (diffSeconds < 0) {
-    return { text: 'Departed', isPast: true, isBoarding: false };
+    return { text: "Departed", isPast: true, isBoarding: false };
   }
 
   const totalMinutes = Math.floor(diffSeconds / 60);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
 
-  if (hours === 0 && minutes === 0) {
-    return { text: 'Now boarding', isPast: false, isBoarding: true };
+  if (hours === 0 && minutes <= 5) {
+    return { text: "Now boarding", isPast: false, isBoarding: true };
   }
 
   if (hours > 0) {
@@ -132,7 +135,7 @@ export function getTripRemainingTime(
 export function getNextBusInfo(
   trips: BusTrip[],
   currentDate: Date,
-  forceWeekday: boolean = false
+  forceWeekday: boolean = false,
 ): {
   nextTrip: BusTrip | null;
   nextTripIndex: number;
@@ -178,12 +181,13 @@ export function getNextBusInfo(
 
 export function calculateTimelineProgress(
   currentDate: Date,
-  trips: BusTrip[]
+  trips: BusTrip[],
 ): {
   progressPercentage: number;
-  status: 'before_first' | 'in_range' | 'after_last';
+  status: "before_first" | "in_range" | "after_last";
 } {
-  if (trips.length === 0) return { progressPercentage: 0, status: 'before_first' };
+  if (trips.length === 0)
+    return { progressPercentage: 0, status: "before_first" };
 
   const firstTripMinutes = trips[0].departureMinutes;
   const lastTripMinutes = trips[trips.length - 1].departureMinutes;
@@ -193,11 +197,11 @@ export function calculateTimelineProgress(
     currentDate.getSeconds() / 60;
 
   if (currentMinutesWithSeconds < firstTripMinutes) {
-    return { progressPercentage: 0, status: 'before_first' };
+    return { progressPercentage: 0, status: "before_first" };
   }
 
   if (currentMinutesWithSeconds > lastTripMinutes) {
-    return { progressPercentage: 100, status: 'after_last' };
+    return { progressPercentage: 100, status: "after_last" };
   }
 
   // Smooth interpolation along the schedule window
@@ -205,5 +209,5 @@ export function calculateTimelineProgress(
   const elapsed = currentMinutesWithSeconds - firstTripMinutes;
   const percentage = Math.min(100, Math.max(0, (elapsed / totalWindow) * 100));
 
-  return { progressPercentage: percentage, status: 'in_range' };
+  return { progressPercentage: percentage, status: "in_range" };
 }
