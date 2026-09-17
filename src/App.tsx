@@ -9,6 +9,7 @@ import { VerticalTimeline } from './components/VerticalTimeline';
 import { TripModal } from './components/TripModal';
 import { GeneralDetails } from './components/GeneralDetails';
 import { SimulationControls } from './components/SimulationControls';
+import { InstallPrompt } from './components/InstallPrompt';
 
 export const App: React.FC = () => {
   const { currentTime, isSimulated, setSimulatedTime, resetToRealTime } = useCurrentTime();
@@ -59,6 +60,9 @@ export const App: React.FC = () => {
         onSetTime={setSimulatedTime}
         onReset={resetToRealTime}
       />
+
+      {/* 7. PWA Install Prompt & Offline Notification */}
+      <InstallPrompt />
     </div>
   );
 };
