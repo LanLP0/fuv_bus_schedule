@@ -25,6 +25,7 @@ export function usePictureInPicture() {
   const [isPipActive, setIsPipActive] = useState<boolean>(false);
   const [pipMode, setPipMode] = useState<PipMode>(null);
   const [pipWindow, setPipWindow] = useState<Window | null>(null);
+  const [pipError, setPipError] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -36,6 +37,8 @@ export function usePictureInPicture() {
     document.pictureInPictureEnabled;
 
   const isSupported = hasDocumentPip || hasVideoPip;
+
+  const clearError = useCallback(() => setPipError(null), []);
 
   // Close PiP
   const closePip = useCallback(() => {
@@ -56,7 +59,7 @@ export function usePictureInPicture() {
     setPipMode(null);
   }, [pipWindow]);
 
-  // Open Document Picture-in-Picture
+  // Open Document Picture-in-Picture (Desktop only)
   const openDocumentPip = useCallback(async (): Promise<boolean> => {
     if (!window.documentPictureInPicture) return false;
 
@@ -84,7 +87,7 @@ export function usePictureInPicture() {
             pip.document.head.appendChild(style);
           }
         } catch {
-          // Cross-origin stylesheet access might fail gracefully
+          // Cross-origin stylesheet access fails gracefully
         }
       });
 
@@ -94,7 +97,6 @@ export function usePictureInPicture() {
       pip.document.body.style.backgroundColor = '#0a0e17';
       pip.document.body.style.overflow = 'hidden';
 
-      // Detect when PiP window is closed by user
       pip.addEventListener('pagehide', () => {
         setIsPipActive(false);
         setPipMode(null);
@@ -111,47 +113,96 @@ export function usePictureInPicture() {
     }
   }, []);
 
-  // Open Canvas Video PiP Fallback
-  const openVideoPip = useCallback(async (): Promise<boolean> => {
-    if (!canvasRef.current || !videoRef.current) return false;
+  // Open Canvas Video PiP Fallback (Mobile & standard browsers)
+  const openVideoPip = useCallback(
+    async (preRender?: () => void): Promise<boolean> => {
+      if (!canvasRef.current || !videoRef.current) {
+        setPipError('Media elements not initialized. Please try again.');
+        return false;
+      }
 
-    try {
-      const stream = canvasRef.current.captureStream(30);
-      const video = videoRef.current;
-      video.srcObject = stream;
-      await video.play();
-      await video.requestPictureInPicture();
+      try {
+        // Method 3: Pre-draw canvas immediately before stream capture
+        if (preRender) {
+          preRender();
+        }
 
-      video.addEventListener('leavepictureinpicture', () => {
-        setIsPipActive(false);
-        setPipMode(null);
-      });
+        const canvas = canvasRef.current;
+        const video = videoRef.current;
 
-      setIsPipActive(true);
-      setPipMode('video');
-      return true;
-    } catch (err) {
-      console.warn('Video Picture-in-Picture fallback failed:', err);
-      return false;
-    }
-  }, []);
+        // Ensure stream is captured with a stable framerate
+        const stream = canvas.captureStream(20);
+        video.srcObject = stream;
+        video.muted = true;
+        video.playsInline = true;
+
+        await video.play();
+        await video.requestPictureInPicture();
+
+        const onLeavePip = () => {
+          setIsPipActive(false);
+          setPipMode(null);
+          video.removeEventListener('leavepictureinpicture', onLeavePip);
+        };
+
+        video.addEventListener('leavepictureinpicture', onLeavePip);
+
+        setIsPipActive(true);
+        setPipMode('video');
+        return true;
+      } catch (err) {
+        console.error('Video Picture-in-Picture failed:', err);
+        let message = 'Failed to start Picture-in-Picture.';
+
+        if (err instanceof DOMException) {
+          if (err.name === 'NotAllowedError') {
+            message =
+              'Picture-in-Picture was blocked. Ensure Chrome has Picture-in-Picture permission in Android App Settings.';
+          } else if (err.name === 'InvalidStateError') {
+            message = 'Video stream not ready. Please try tapping the button once more.';
+          } else {
+            message = err.message || message;
+          }
+        } else if (err instanceof Error) {
+          message = err.message;
+        }
+
+        setPipError(message);
+        return false;
+      }
+    },
+    []
+  );
 
   // Toggle PiP mode
-  const togglePip = useCallback(async () => {
-    if (isPipActive) {
-      closePip();
-      return;
-    }
+  const togglePip = useCallback(
+    async (preRender?: () => void) => {
+      setPipError(null);
 
-    if (hasDocumentPip) {
-      const success = await openDocumentPip();
-      if (success) return;
-    }
+      if (isPipActive) {
+        closePip();
+        return;
+      }
 
-    if (hasVideoPip) {
-      await openVideoPip();
-    }
-  }, [isPipActive, hasDocumentPip, hasVideoPip, openDocumentPip, openVideoPip, closePip]);
+      const isMobile =
+        typeof navigator !== 'undefined' &&
+        /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+      // On desktop, try Document PiP first if available
+      if (!isMobile && hasDocumentPip) {
+        const success = await openDocumentPip();
+        if (success) return;
+      }
+
+      // On mobile or if Document PiP unavailable, use Video PiP fallback
+      if (hasVideoPip) {
+        await openVideoPip(preRender);
+      } else {
+        setPipError('Picture-in-Picture is not supported on this browser.');
+      }
+    },
+    [isPipActive, hasDocumentPip, hasVideoPip, openDocumentPip, openVideoPip, closePip]
+  );
 
   // Clean up on unmount
   useEffect(() => {
@@ -168,6 +219,8 @@ export function usePictureInPicture() {
     isPipActive,
     pipMode,
     pipWindow,
+    pipError,
+    clearError,
     isSupported,
     togglePip,
     closePip,

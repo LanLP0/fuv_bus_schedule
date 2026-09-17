@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import {
   Clock,
@@ -7,6 +7,7 @@ import {
   Compass,
   Timer,
   PictureInPicture2,
+  X,
 } from "lucide-react";
 import type { BusTrip } from "../types/schedule";
 import {
@@ -43,6 +44,8 @@ export const CurrentTimeBanner: React.FC<CurrentTimeBannerProps> = ({
     isPipActive,
     pipMode,
     pipWindow,
+    pipError,
+    clearError,
     isSupported: isPipSupported,
     togglePip,
     closePip,
@@ -50,14 +53,23 @@ export const CurrentTimeBanner: React.FC<CurrentTimeBannerProps> = ({
     videoRef,
   } = usePictureInPicture();
 
-  // Canvas drawing for video PiP fallback when active
+  // Auto-dismiss PiP error message after 6 seconds
   useEffect(() => {
-    if (pipMode !== "video" || !canvasRef.current) return;
+    if (!pipError) return;
+    const timer = setTimeout(() => {
+      clearError();
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, [pipError, clearError]);
+
+  // Method 3: Dedicated synchronous canvas drawing function
+  const drawCanvasFrame = useCallback(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Dark sleek background
+    // Dark background
     ctx.fillStyle = "#0a0e17";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -75,7 +87,7 @@ export const CurrentTimeBanner: React.FC<CurrentTimeBannerProps> = ({
     // Label
     ctx.fillStyle = "#f87171";
     ctx.font = "bold 11px Inter, sans-serif";
-    ctx.fillText("TIME TO NEXT BUS", 20, 64);
+    ctx.fillText("TIME LEFT TO NEXT BUS", 20, 64);
 
     // Countdown Text
     ctx.fillStyle = "#ef4444";
@@ -97,7 +109,17 @@ export const CurrentTimeBanner: React.FC<CurrentTimeBannerProps> = ({
       ctx.font = "12px Inter, sans-serif";
       ctx.fillText(nextTrip.pickupLocation, 20, 172);
     }
-  }, [pipMode, currentTime, clockTime, countdown, nextTrip, canvasRef]);
+  }, [clockTime, countdown, nextTrip, canvasRef]);
+
+  // Draw initial frame and keep updated during active video PiP
+  useEffect(() => {
+    drawCanvasFrame();
+  }, [drawCanvasFrame]);
+
+  useEffect(() => {
+    if (pipMode !== "video") return;
+    drawCanvasFrame();
+  }, [pipMode, currentTime, drawCanvasFrame]);
 
   return (
     <section className="glass-panel countdown-banner">
@@ -143,7 +165,7 @@ export const CurrentTimeBanner: React.FC<CurrentTimeBannerProps> = ({
           <div className="next-bus-header-row">
             <div className="next-bus-label">
               <Timer size={16} />
-              <span>Time to Next Bus</span>
+              <span>Time Left to Next Bus</span>
             </div>
 
             {isPipSupported && (
@@ -151,7 +173,9 @@ export const CurrentTimeBanner: React.FC<CurrentTimeBannerProps> = ({
                 className={`pip-toggle-btn ${isPipActive ? "active" : ""}`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  togglePip();
+                  // Pre-draw canvas immediately in user gesture before calling toggle
+                  drawCanvasFrame();
+                  togglePip(drawCanvasFrame);
                 }}
                 title={
                   isPipActive
@@ -166,7 +190,7 @@ export const CurrentTimeBanner: React.FC<CurrentTimeBannerProps> = ({
             )}
           </div>
 
-          {/* Red text showing time to the next bus */}
+          {/* Red text showing time left to the next bus */}
           <div className="next-bus-countdown-text">{countdown.formatted}</div>
 
           <div className="next-bus-details-tag">
@@ -216,16 +240,23 @@ export const CurrentTimeBanner: React.FC<CurrentTimeBannerProps> = ({
         </div>
       )}
 
-      {/* Offscreen elements for video PiP fallback */}
+      {/* Method 2: Offscreen elements with layout dimensions for video PiP fallback (Android Chrome compatible) */}
       <canvas
         ref={canvasRef}
-        width={340}
-        height={200}
-        style={{ display: "none" }}
+        width={360}
+        height={220}
+        className="pip-offscreen-media"
       />
-      <video ref={videoRef} playsInline muted style={{ display: "none" }} />
+      <video
+        ref={videoRef}
+        playsInline
+        muted
+        className="pip-offscreen-media"
+        width={360}
+        height={220}
+      />
 
-      {/* Document Picture-in-Picture Portal */}
+      {/* Document Picture-in-Picture Portal (Desktop Chrome) */}
       {pipWindow &&
         createPortal(
           <PipTimerWidget
@@ -237,6 +268,27 @@ export const CurrentTimeBanner: React.FC<CurrentTimeBannerProps> = ({
           />,
           pipWindow.document.body,
         )}
+
+      {/* Method 4: Error Toast Alert */}
+      {pipError && (
+        <div className="pip-error-toast" role="alert">
+          <div className="pip-error-content">
+            <AlertTriangle
+              size={16}
+              color="#ef4444"
+              style={{ flexShrink: 0 }}
+            />
+            <span>{pipError}</span>
+          </div>
+          <button
+            onClick={clearError}
+            className="pip-error-close"
+            aria-label="Dismiss error"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
     </section>
   );
 };
