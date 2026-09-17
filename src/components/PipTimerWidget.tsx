@@ -1,7 +1,7 @@
-import React from 'react';
-import { Bus, Clock, X, ArrowRight, MapPin } from 'lucide-react';
-import type { BusTrip } from '../types/schedule';
-import { formatClockTime } from '../utils/timeUtils';
+import React from "react";
+import { Bus, Clock, X, ArrowRight, MapPin } from "lucide-react";
+import type { BusTrip } from "../types/schedule";
+import { formatClockTime } from "../utils/timeUtils";
 
 interface PipTimerWidgetProps {
   currentTime: Date;
@@ -18,7 +18,7 @@ export const PipTimerWidget: React.FC<PipTimerWidgetProps> = ({
   isBoarding,
   onClose,
 }) => {
-  const isNoble = nextTrip?.origin === 'Noble Crystal';
+  const isNoble = nextTrip?.origin === "Noble Crystal";
 
   return (
     <div className="pip-widget-container">
@@ -48,20 +48,24 @@ export const PipTimerWidget: React.FC<PipTimerWidgetProps> = ({
 
       {/* Main Countdown Display */}
       <div className="pip-body">
-        <div className="pip-label">TIME LEFT TO NEXT BUS</div>
+        <div className="pip-label">TIME TO NEXT BUS</div>
 
-        <div className={`pip-countdown ${isBoarding ? 'is-boarding' : ''}`}>
+        <div className={`pip-countdown ${isBoarding ? "is-boarding" : ""}`}>
           {countdownText}
         </div>
 
         {nextTrip ? (
           <div className="pip-details">
             <div className="pip-route-tag">
-              <span className={`pip-origin-pill ${isNoble ? 'noble' : 'crescent'}`}>
+              <span
+                className={`pip-origin-pill ${isNoble ? "noble" : "crescent"}`}
+              >
                 From {nextTrip.origin}
               </span>
               <ArrowRight size={11} color="#9ca3af" />
-              <span className="pip-departure-time">{nextTrip.departureTime}</span>
+              <span className="pip-departure-time">
+                {nextTrip.departureTime}
+              </span>
             </div>
 
             <div className="pip-pickup">
