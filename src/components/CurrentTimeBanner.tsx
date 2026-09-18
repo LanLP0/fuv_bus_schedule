@@ -87,7 +87,7 @@ export const CurrentTimeBanner: React.FC<CurrentTimeBannerProps> = ({
     // Label
     ctx.fillStyle = "#f87171";
     ctx.font = "bold 11px Inter, sans-serif";
-    ctx.fillText("TIME LEFT TO NEXT BUS", 20, 64);
+    ctx.fillText("TIME TO NEXT BUS", 20, 64);
 
     // Countdown Text
     ctx.fillStyle = "#ef4444";
@@ -165,7 +165,7 @@ export const CurrentTimeBanner: React.FC<CurrentTimeBannerProps> = ({
           <div className="next-bus-header-row">
             <div className="next-bus-label">
               <Timer size={16} />
-              <span>Time Left to Next Bus</span>
+              <span>Time to Next Bus</span>
             </div>
 
             {isPipSupported && (
@@ -190,7 +190,7 @@ export const CurrentTimeBanner: React.FC<CurrentTimeBannerProps> = ({
             )}
           </div>
 
-          {/* Red text showing time left to the next bus */}
+          {/* Red text showing time to the next bus */}
           <div className="next-bus-countdown-text">{countdown.formatted}</div>
 
           <div className="next-bus-details-tag">
