@@ -125,7 +125,15 @@ export const CurrentTimeBanner: React.FC<CurrentTimeBannerProps> = ({
     <section className="glass-panel countdown-banner">
       {/* Live Digital Clock */}
       <div className="clock-display">
-        <div className="banner-ambient" />
+        <div
+          className="banner-ambient"
+          style={{
+            background:
+              !hasNoServiceToday && isServiceEnded
+                ? "radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, transparent 70%)"
+                : undefined,
+          }}
+        />
         <div className="clock-date">
           <Clock size={16} />
           <span>{formattedDate}</span>
